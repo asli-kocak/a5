@@ -12,10 +12,12 @@ in vec3 myPosition;
 
 out vec3 normal;
 out vec3 position;
+out vec3 envPosition;
 
 void main() {
-    mat4 my myModelviewMatrix = myViewMatrix * myModelMatrix;
+
     normal = myNormal;
-    position = (myModelMatrix * vec4(myPosition, 1.0)).xyz;
-    gl_Position = (myProjectionMatrix * myModelviewMatrix * vec4(myPosition, 1.0));
+    position = myPosition;
+
+    gl_Position = (myProjectionMatrix * myViewMatrix * myModelMatrix * vec4(myPosition, 1.0));
 }

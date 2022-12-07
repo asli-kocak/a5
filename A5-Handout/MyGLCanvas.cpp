@@ -96,11 +96,18 @@ void MyGLCanvas::drawScene() {
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_TEXTURE_2D);
-	//Pass first texture info to our shader 
+	//Pass first texture info to our shader
+	glUseProgram(myShaderManager->getShaderProgram("environmentShaders")->programID);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("environMap"));
+	glUniform1i(glGetUniformLocation(myShaderManager->getShaderProgram("environmentShaders")->programID, "envTexture"), 0);
+
+
+	glUseProgram(myShaderManager->getShaderProgram("objectShaders")->programID);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, myTextureManager->getTextureID("objectTexture"));
+	glUniform1i(glGetUniformLocation(myShaderManager->getShaderProgram("objectShaders")->programID, "objTexture"), 0);
+	
 
 	//first draw the object sphere
 	glUseProgram(myShaderManager->getShaderProgram("objectShaders")->programID);
@@ -109,12 +116,14 @@ void MyGLCanvas::drawScene() {
 
 	//SHADER: passing model and view matricies to object shader
 	glUniformMatrix4fv(glGetUniformLocation(myShaderManager->getShaderProgram("objectShaders")->programID, "myViewMatrix"), 1, false, glm::value_ptr(viewMatrix));
+
 	glUniformMatrix4fv(glGetUniformLocation(myShaderManager->getShaderProgram("objectShaders")->programID, "myModelMatrix"), 1, false, glm::value_ptr(modelMatrix));
+
 
 	//pass eye point and light pos
 	glUniform3fv(glGetUniformLocation(myShaderManager->getShaderProgram("objectShaders")->programID, "myEyePos"), 1, glm::value_ptr(eyePosition));
 	//if it doesnt work passing value_ptr twice, we can just pass it once
-	glUniform3fv(glGetUniformLocation(myShaderManager->getShaderProgram("objectShaders")->programID, "myLightPos"), 1, glm::value_ptr(eyePosition));
+	//glUniform3fv(glGetUniformLocation(myShaderManager->getShaderProgram("objectShaders")->programID, "myLightPos"), 1, glm::value_ptr(lightPos));
 
 
 	myObjectPLY->renderVBO(myShaderManager->getShaderProgram("objectShaders")->programID);
@@ -125,6 +134,8 @@ void MyGLCanvas::drawScene() {
 	glUseProgram(myShaderManager->getShaderProgram("environmentShaders")->programID);
 
 	//TODO: add variable binding
+	glUniformMatrix4fv(glGetUniformLocation(myShaderManager->getShaderProgram("environmentShaders")->programID, "myViewMatrix"), 1, false, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(myShaderManager->getShaderProgram("environmentShaders")->programID, "myModelMatrix"), 1, false, glm::value_ptr(modelMatrix));
 
 	myEnvironmentPLY->renderVBO(myShaderManager->getShaderProgram("environmentShaders")->programID);
 }
@@ -139,12 +150,12 @@ void MyGLCanvas::updateCamera(int width, int height) {
 	// pass perspective matrix to shaders
 
 	//first pass to object shaders 
-	//glUseProgram(myShaderManager->getShaderProgram("objectShaders")->programID);
+	glUseProgram(myShaderManager->getShaderProgram("objectShaders")->programID);
 	glUniformMatrix4fv(glGetUniformLocation(myShaderManager->getShaderProgram("objectShaders")->programID, "myProjectionMatrix"), 1, false, glm::value_ptr(perspectiveMatrix));
 
 	//then pass to env shaders 
-	//glUseProgram(myShaderManager->getShaderProgram("environmentShaders")->programID);
-	//glUniformMatrix4fv(glGetUniformLocation(myShaderManager->program, "myProjectionMatrix"), 1, false, glm::value_ptr(perspectiveMatrix));
+	glUseProgram(myShaderManager->getShaderProgram("environmentShaders")->programID);
+	glUniformMatrix4fv(glGetUniformLocation(myShaderManager->getShaderProgram("environmentShaders")->programID, "myProjectionMatrix"), 1, false, glm::value_ptr(perspectiveMatrix));
 }
 
 
